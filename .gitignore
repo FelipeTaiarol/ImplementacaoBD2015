@@ -1,0 +1,37 @@
+# Java Class Files
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+#mac files
+.DS_STORE
+/target/
+
+.classpath
+.project
+.settings
+
+# Node Modules
+node_modules/
+node
+
+# UI Dist folder
+src/main/webapp/*
+!src/main/webapp/WEB-INF/
+!src/main/webapp/index.html
+src/main/ui/conversations/assets/css
+*.orig
+
+data
+derby.log
+/.sublime-gulp.cache
+/npm install.bat
