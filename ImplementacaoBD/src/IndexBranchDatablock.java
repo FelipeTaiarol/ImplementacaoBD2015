@@ -5,6 +5,8 @@ import java.util.List;
 
 public class IndexBranchDatablock extends IndexDataBlock {
 	
+	private IndexBranchDatablock parent;
+	
 	public IndexBranchDatablock(int id) {
 		super(id);
 	}
@@ -19,10 +21,32 @@ public class IndexBranchDatablock extends IndexDataBlock {
 		this.nodes = nodes;
 	}
 	
+	public IndexBranchDatablock getParent() {
+		return parent;
+	}
+	
+	public void setParent(	IndexBranchDatablock parent) {
+		this.parent = parent;
+	}
+	
 	public void addNode(BranchDataBlockNode node) {
 		nodes.add(node);
 		
-		// ordena os nodes
+		setParent(node);
+		sortNodes();
+		updateReferences();
+	}
+	
+	private void updateReferences() {
+		for (int i = 0; i < nodes.size() - 1; i++) {
+			BranchDataBlockNode firstNode = nodes.get(i);
+			BranchDataBlockNode secondNode = nodes.get(i + 1);
+			
+			secondNode.setLeftDataBlock(firstNode.getRightDataBlock());
+		}
+	}
+	
+	private void sortNodes() {
 		Collections.sort(this.nodes, new Comparator<BranchDataBlockNode>() {
 			
 			@Override
@@ -30,13 +54,14 @@ public class IndexBranchDatablock extends IndexDataBlock {
 				return Integer.valueOf(o1.getKey()).compareTo(o2.getKey());
 			}
 		});
-		
-		// organiza as referencias
-		for (int i = 0; i < nodes.size() - 1; i++) {
-			BranchDataBlockNode firstNode = nodes.get(i);
-			BranchDataBlockNode secondNode = nodes.get(i + 1);
-			
-			secondNode.setLeftDataBlock(firstNode.getRightDataBlock());
+	}
+	
+	private void setParent(	BranchDataBlockNode node) {
+		if (node.getLeftDataBlock() instanceof IndexBranchDatablock) {
+			((IndexBranchDatablock) node.getLeftDataBlock()).setParent(this);
+		}
+		if (node.getRightDataBlock() instanceof IndexBranchDatablock) {
+			((IndexBranchDatablock) node.getRightDataBlock()).setParent(this);
 		}
 	}
 	
@@ -55,7 +80,10 @@ public class IndexBranchDatablock extends IndexDataBlock {
 	@Override
 	public String toString() {
 		
-		String str = "Branch  " + this.getId() + "\n";
+		String str = "Branch  "
+				+ this.getId()
+				+ (this.getParent() == null ? " NO_PARENT" : " PARENT: "
+						+ this.getParent().getId()) + "\n";
 		for (BranchDataBlockNode branchDataBlockNode : nodes) {
 			str += " -- " + branchDataBlockNode.toString() + "\n";
 		}

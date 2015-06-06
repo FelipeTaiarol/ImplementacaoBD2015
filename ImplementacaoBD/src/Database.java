@@ -84,7 +84,12 @@ public class Database {
 		db.insertCustomer(83, "p68");
 		db.insertCustomer(84, "p68");
 		
-		// db.printBTree();
+		db.insertCustomer(85, "p68");
+		db.insertCustomer(86, "p68");
+		db.insertCustomer(87, "p68");
+		db.insertCustomer(88, "p68");
+		db.insertCustomer(89, "p68");
+		// db.insertCustomer(90, "p68");
 		
 		db.printDataFile();
 	}
@@ -247,18 +252,23 @@ public class Database {
 					// se a branch que foi separda era o root agora a nova
 					// branch vai passar a ser o root
 					if (branch == bTreeRoot) {
+						// um novo branch data block é criado para guardar o
+						// node.
 						IndexBranchDatablock newBranch = new IndexBranchDatablock(
 																					getNextDataBlockId());
 						getLastDataBlock().setNext(newBranch);
 						newBranch.addNode(newNode);
 						this.bTreeRoot = newBranch;
-						
 					} else {
+						
+						IndexBranchDatablock parentBranch = null;
+						
+						// TODO: este else todo esta errado. eu nao posso sempre
+						// adicionar no root.
 						// caso contrario adiciona o node na root.
 						IndexBranchDatablock rootBranch = (IndexBranchDatablock) bTreeRoot;
 						
 						newNode = this.addNodeToBranch(rootBranch, newNode);
-						
 						// se ao adicionar a root estiver cheia é preciso fazer
 						// um split.
 						if (newNode != null) {
@@ -269,9 +279,9 @@ public class Database {
 							this.bTreeRoot = newBranch;
 						}
 					}
+					
 				}
 			}
-			
 		} else {
 			// se o datablock nao for um Leaf navegar na tree até econtrar um.
 			IndexBranchDatablock otherBranch = (IndexBranchDatablock) dataBlock;
