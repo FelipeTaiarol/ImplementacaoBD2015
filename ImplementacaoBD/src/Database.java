@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.List;
 
 public class Database {
@@ -11,16 +12,19 @@ public class Database {
 	public static void main(String[] args) {
 		Database db = new Database();
 		db.insertCustomer(3, "Joao");
-		db.insertCustomer(4, "Maria");
-		db.insertCustomer(1, "Felipe");
-		db.insertCustomer(2, "Ana");
+		db.insertCustomer(8, "p8");
 		db.insertCustomer(5, "Jorge");
+		db.insertCustomer(6, "p6");
+		db.insertCustomer(1, "p7");
+		db.insertCustomer(2, "Ana");
+		db.insertCustomer(4, "Maria");
+		db.insertCustomer(7, "Felipe");
 		
 		db.printDataFile();
 	}
 	
-	private void split(	IndexLeafDataBlock leftDataBlock,
-						IndexData overflowIndex) {
+	private IndexBranchDatablock split(	IndexLeafDataBlock leftDataBlock,
+										IndexData overflowIndex) {
 		IndexBranchDatablock branchDataBlock = new IndexBranchDatablock(
 																		getNextDataBlockId());
 		
@@ -31,9 +35,17 @@ public class Database {
 		List<IndexData> leftList = leftDataBlock.getIndexRecords()
 												.subList(0, middle);
 		
+		// se nao fizer isso vai dar um erro bizarro na hora de iterar na
+		// sublist
+		leftList = new LinkedList<IndexData>(leftList);
+		
 		List<IndexData> rightList = leftDataBlock.getIndexRecords()
 													.subList(	middle,
 																maxIndexPerIndexDataBlock + 1);
+		// se nao fizer isso vai dar um erro bizarro na hora de iterar na
+		// sublist
+		rightList = new LinkedList<IndexData>(rightList);
+		
 		leftDataBlock.setIndexRecords(leftList);
 		
 		IndexLeafDataBlock rightDataBlock = new IndexLeafDataBlock(
@@ -41,13 +53,18 @@ public class Database {
 		
 		rightDataBlock.setIndexRecords(rightList);
 		
-		branchDataBlock.setKey(rightList.get(0).getIndexKey());
-		branchDataBlock.setLeftDataBlock(leftDataBlock);
-		branchDataBlock.setRightDataBlock(rightDataBlock);
+		BranchDataBlockNode node = new BranchDataBlockNode(
+															rightList.get(0)
+																		.getIndexKey(),
+															leftDataBlock,
+															rightDataBlock);
+		
+		branchDataBlock.addNode(node);
 		
 		getLastDataBlock().setNext(branchDataBlock);
 		branchDataBlock.setNext(rightDataBlock);
 		
+		return branchDataBlock;
 	}
 	
 	public void insertCustomer(	int code, String name) {
@@ -63,11 +80,23 @@ public class Database {
 		
 		IndexData indexData = new IndexData(key, tableDataBlock);
 		
-		addToLeafDataBlock(indexData);
+		addToIndexDataBlock(indexData);
 		
 	}
 	
-	private void addToLeafDataBlock(IndexData indexData) {
+	private IndexBranchDatablock addToLeafDataBlock(IndexLeafDataBlock leaf,
+													IndexData indexData) {
+		
+		if (leaf.getNumberOfRecords() >= maxIndexPerIndexDataBlock) {
+			return split(leaf, indexData);
+		} else {
+			((IndexLeafDataBlock) bTreeRoot).addIndexRecord(indexData);
+		}
+		
+		return null;
+	}
+	
+	private void addToIndexDataBlock(	IndexData indexData) {
 		
 		if (bTreeRoot == null) {
 			bTreeRoot = new IndexLeafDataBlock(getNextDataBlockId());
@@ -78,10 +107,34 @@ public class Database {
 		
 		if (bTreeRoot instanceof IndexLeafDataBlock) {
 			IndexLeafDataBlock aux = (IndexLeafDataBlock) bTreeRoot;
-			if (aux.getNumberOfRecords() >= maxIndexPerIndexDataBlock) {
-				split(aux, indexData);
+			
+			IndexBranchDatablock branch = addToLeafDataBlock(aux, indexData);
+			
+			if (branch != null) {
+				this.bTreeRoot = branch;
+			}
+			
+			return;
+		}
+		
+		if (bTreeRoot instanceof IndexBranchDatablock) {
+			
+			IndexBranchDatablock branch = (IndexBranchDatablock) bTreeRoot;
+			
+			BranchDataBlockNode branchNode = branch.getNodeForKey(indexData.getIndexKey());
+			
+			if (indexData.getIndexKey() < branchNode.getKey()) {
+				DataBlock leftDataBlock = branchNode.getLeftDataBlock();
+				
+				if (leftDataBlock instanceof IndexLeafDataBlock) {
+					((IndexLeafDataBlock) leftDataBlock).addIndexRecord(indexData);
+				}
 			} else {
-				((IndexLeafDataBlock) bTreeRoot).addIndexRecord(indexData);
+				DataBlock rightDataBlock = branchNode.getRightDataBlock();
+				
+				if (rightDataBlock instanceof IndexLeafDataBlock) {
+					((IndexLeafDataBlock) rightDataBlock).addIndexRecord(indexData);
+				}
 			}
 		}
 		

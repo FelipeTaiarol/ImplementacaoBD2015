@@ -41,6 +41,6 @@ public class IndexLeafDataBlock extends IndexDataBlock {
 			indexRecordsString += " -- " + indexData.toString() + "\n";
 		}
 		
-		return "IndexDataBlock " + this.getId() + " \n" + indexRecordsString;
+		return "Leaf DataBlock " + this.getId() + " \n" + indexRecordsString;
 	}
 }

@@ -1,42 +1,50 @@
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
 public class IndexBranchDatablock extends IndexDataBlock {
-	
-	private int key;
-	private DataBlock leftDataBlock;
-	private DataBlock rightDataBlock;
 	
 	public IndexBranchDatablock(int id) {
 		super(id);
 	}
 	
-	public int getKey() {
-		return key;
+	private List<BranchDataBlockNode> nodes = new LinkedList<BranchDataBlockNode>();
+	
+	public void addNode(BranchDataBlockNode node) {
+		nodes.add(node);
+		
+		Collections.sort(this.nodes, new Comparator<BranchDataBlockNode>() {
+			
+			@Override
+			public int compare(	BranchDataBlockNode o1, BranchDataBlockNode o2) {
+				return Integer.valueOf(o1.getKey()).compareTo(o2.getKey());
+			}
+		});
 	}
 	
-	public void setKey(	int key) {
-		this.key = key;
-	}
-	
-	public DataBlock getLeftDataBlock() {
-		return leftDataBlock;
-	}
-	
-	public void setLeftDataBlock(	DataBlock leftDataBlock) {
-		this.leftDataBlock = leftDataBlock;
-	}
-	
-	public DataBlock getRightDataBlock() {
-		return rightDataBlock;
-	}
-	
-	public void setRightDataBlock(	DataBlock rightDataBlock) {
-		this.rightDataBlock = rightDataBlock;
+	public BranchDataBlockNode getNodeForKey(	int key) {
+		
+		BranchDataBlockNode node = null;
+		for (BranchDataBlockNode branchDataBlockNode : nodes) {
+			if (key < branchDataBlockNode.getKey())
+				node = branchDataBlockNode;
+		}
+		if (node == null) {
+			return nodes.get(nodes.size() - 1);
+		} else {
+			return node;
+		}
 	}
 	
 	@Override
 	public String toString() {
-		return "IndexBranchDatablock [key=" + key + ", leftDataBlock="
-				+ leftDataBlock.getId() + ", rightDataBlock="
-				+ rightDataBlock.getId() + "]";
+		
+		String str = "Branch \n";
+		for (BranchDataBlockNode branchDataBlockNode : nodes) {
+			str += " -- " + branchDataBlockNode.toString();
+		}
+		return str + "\n";
 	}
 	
 }
