@@ -11,22 +11,29 @@ public class Database {
 	
 	public static void main(String[] args) {
 		Database db = new Database();
-		db.insertCustomer(3, "Joao");
-		db.insertCustomer(8, "p8");
-		db.insertCustomer(5, "Jorge");
-		db.insertCustomer(6, "p6");
-		db.insertCustomer(1, "p7");
-		db.insertCustomer(2, "Ana");
-		db.insertCustomer(4, "Maria");
-		db.insertCustomer(7, "Felipe");
-		
+		db.insertCustomer(37, "Joao");
+		db.insertCustomer(50, "p8");
+		db.insertCustomer(13, "Jorge");
+		db.insertCustomer(61, "p6");
+		db.insertCustomer(23, "p7");
+		db.insertCustomer(17, "Ana");
+		db.insertCustomer(32, "Maria");
+		db.insertCustomer(8, "Felipe");
+		// db.insertCustomer(9, "p9");
+		//
 		db.printDataFile();
 	}
 	
-	private IndexBranchDatablock split(	IndexLeafDataBlock leftDataBlock,
-										IndexData overflowIndex) {
-		IndexBranchDatablock branchDataBlock = new IndexBranchDatablock(
-																		getNextDataBlockId());
+	/**
+	 * faz o split do leaf data block em dois e retorna o branch datablock node
+	 * que aponta pra eles.
+	 * 
+	 * @param leftDataBlock
+	 * @param overflowIndex
+	 * @return
+	 */
+	private BranchDataBlockNode splitLeaf(	IndexLeafDataBlock leftDataBlock,
+											IndexData overflowIndex) {
 		
 		leftDataBlock.addIndexRecord(overflowIndex);
 		
@@ -59,12 +66,9 @@ public class Database {
 															leftDataBlock,
 															rightDataBlock);
 		
-		branchDataBlock.addNode(node);
+		getLastDataBlock().setNext(rightDataBlock);
 		
-		getLastDataBlock().setNext(branchDataBlock);
-		branchDataBlock.setNext(rightDataBlock);
-		
-		return branchDataBlock;
+		return node;
 	}
 	
 	public void insertCustomer(	int code, String name) {
@@ -84,13 +88,21 @@ public class Database {
 		
 	}
 	
-	private IndexBranchDatablock addToLeafDataBlock(IndexLeafDataBlock leaf,
+	/**
+	 * adicinona o index no leaf datablock. se ele estiver cheio faz o split e
+	 * retorna o branch data block.
+	 * 
+	 * @param leaf
+	 * @param indexData
+	 * @return
+	 */
+	private BranchDataBlockNode addToLeafDataBlock(	IndexLeafDataBlock leaf,
 													IndexData indexData) {
 		
 		if (leaf.getNumberOfRecords() >= maxIndexPerIndexDataBlock) {
-			return split(leaf, indexData);
+			return splitLeaf(leaf, indexData);
 		} else {
-			((IndexLeafDataBlock) bTreeRoot).addIndexRecord(indexData);
+			leaf.addIndexRecord(indexData);
 		}
 		
 		return null;
@@ -105,12 +117,22 @@ public class Database {
 			return;
 		}
 		
+		// se o root é um Leaf adiciona nele. Caso de overflow
+		// 'addToLeafDataBlock' fara o split de leaf e retornara o branch data
+		// block node que aponta para os leafs criados no split. Nesse caso um
+		// branch é criado, o node é adicionado a ele e ele passa a ser o root
 		if (bTreeRoot instanceof IndexLeafDataBlock) {
 			IndexLeafDataBlock aux = (IndexLeafDataBlock) bTreeRoot;
 			
-			IndexBranchDatablock branch = addToLeafDataBlock(aux, indexData);
+			BranchDataBlockNode branchNode = addToLeafDataBlock(aux, indexData);
 			
-			if (branch != null) {
+			if (branchNode != null) {
+				IndexBranchDatablock branch = new IndexBranchDatablock(
+																		getNextDataBlockId());
+				getLastDataBlock().setNext(branch);
+				
+				branch.addNode(branchNode);
+				
 				this.bTreeRoot = branch;
 			}
 			
@@ -127,13 +149,26 @@ public class Database {
 				DataBlock leftDataBlock = branchNode.getLeftDataBlock();
 				
 				if (leftDataBlock instanceof IndexLeafDataBlock) {
-					((IndexLeafDataBlock) leftDataBlock).addIndexRecord(indexData);
+					IndexLeafDataBlock leftLeaf = (IndexLeafDataBlock) leftDataBlock;
+					
+					BranchDataBlockNode leftBranchNode = addToLeafDataBlock(leftLeaf,
+																			indexData);
+					if (leftBranchNode != null)
+						branch.addNode(leftBranchNode);
 				}
 			} else {
 				DataBlock rightDataBlock = branchNode.getRightDataBlock();
 				
 				if (rightDataBlock instanceof IndexLeafDataBlock) {
-					((IndexLeafDataBlock) rightDataBlock).addIndexRecord(indexData);
+					
+					IndexLeafDataBlock rightLeaf = (IndexLeafDataBlock) rightDataBlock;
+					
+					BranchDataBlockNode rightBranchNode = addToLeafDataBlock(	rightLeaf,
+																				indexData);
+					
+					if (rightBranchNode != null) {
+						branch.addNode(rightBranchNode);
+					}
 				}
 			}
 		}
@@ -197,6 +232,8 @@ public class Database {
 		DataBlock dataBlock = firstDatablock;
 		
 		do {
+			if (this.bTreeRoot == dataBlock)
+				System.out.print("ROOT ");
 			System.out.println(dataBlock);
 		} while ((dataBlock = dataBlock.getNext()) != null);
 		

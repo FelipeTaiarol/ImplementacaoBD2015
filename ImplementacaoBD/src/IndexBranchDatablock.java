@@ -21,6 +21,13 @@ public class IndexBranchDatablock extends IndexDataBlock {
 				return Integer.valueOf(o1.getKey()).compareTo(o2.getKey());
 			}
 		});
+		
+		for (int i = 0; i < nodes.size() - 1; i++) {
+			BranchDataBlockNode firstNode = nodes.get(i);
+			BranchDataBlockNode secondNode = nodes.get(i + 1);
+			
+			secondNode.setLeftDataBlock(firstNode.getRightDataBlock());
+		}
 	}
 	
 	public BranchDataBlockNode getNodeForKey(	int key) {
@@ -40,7 +47,7 @@ public class IndexBranchDatablock extends IndexDataBlock {
 	@Override
 	public String toString() {
 		
-		String str = "Branch \n";
+		String str = "Branch  " + this.getId() + "\n";
 		for (BranchDataBlockNode branchDataBlockNode : nodes) {
 			str += " -- " + branchDataBlockNode.toString();
 		}
