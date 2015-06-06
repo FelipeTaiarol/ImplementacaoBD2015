@@ -30,6 +30,7 @@ public class IndexBranchDatablock extends IndexDataBlock {
 		}
 	}
 	
+	// retorna o node que tem uma key menor, se nao houver um retorna o ultimo
 	public BranchDataBlockNode getNodeForKey(	int key) {
 		
 		BranchDataBlockNode node = null;
@@ -37,6 +38,7 @@ public class IndexBranchDatablock extends IndexDataBlock {
 			if (key < branchDataBlockNode.getKey())
 				node = branchDataBlockNode;
 		}
+		
 		if (node == null) {
 			return nodes.get(nodes.size() - 1);
 		} else {

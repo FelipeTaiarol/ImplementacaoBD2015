@@ -140,39 +140,52 @@ public class Database {
 		}
 		
 		if (bTreeRoot instanceof IndexBranchDatablock) {
-			
 			IndexBranchDatablock branch = (IndexBranchDatablock) bTreeRoot;
 			
-			BranchDataBlockNode branchNode = branch.getNodeForKey(indexData.getIndexKey());
-			
-			if (indexData.getIndexKey() < branchNode.getKey()) {
-				DataBlock leftDataBlock = branchNode.getLeftDataBlock();
-				
-				if (leftDataBlock instanceof IndexLeafDataBlock) {
-					IndexLeafDataBlock leftLeaf = (IndexLeafDataBlock) leftDataBlock;
-					
-					BranchDataBlockNode leftBranchNode = addToLeafDataBlock(leftLeaf,
-																			indexData);
-					if (leftBranchNode != null)
-						branch.addNode(leftBranchNode);
-				}
-			} else {
-				DataBlock rightDataBlock = branchNode.getRightDataBlock();
-				
-				if (rightDataBlock instanceof IndexLeafDataBlock) {
-					
-					IndexLeafDataBlock rightLeaf = (IndexLeafDataBlock) rightDataBlock;
-					
-					BranchDataBlockNode rightBranchNode = addToLeafDataBlock(	rightLeaf,
-																				indexData);
-					
-					if (rightBranchNode != null) {
-						branch.addNode(rightBranchNode);
-					}
-				}
-			}
+			this.addToBranchDataBlock(branch, indexData);
 		}
 		
+	}
+	
+	private void addToBranchDataBlock(	IndexBranchDatablock branch,
+										IndexData indexData) {
+		
+		BranchDataBlockNode branchNode = branch.getNodeForKey(indexData.getIndexKey());
+		
+		DataBlock dataBlock = null;
+		
+		// decide para qual lado da branch ir.
+		if (indexData.getIndexKey() < branchNode.getKey()) {
+			dataBlock = branchNode.getLeftDataBlock();
+		} else {
+			dataBlock = branchNode.getRightDataBlock();
+		}
+		
+		// se o lado for uma folha, adiciona na folha.
+		if (dataBlock instanceof IndexLeafDataBlock) {
+			IndexLeafDataBlock leaf = (IndexLeafDataBlock) dataBlock;
+			
+			this.addToBranchLeaf(branch, leaf, indexData);
+		}
+		
+	}
+	
+	private void addToBranchLeaf(	IndexBranchDatablock branch,
+									IndexLeafDataBlock leaf, IndexData indexData) {
+		BranchDataBlockNode node = addToLeafDataBlock(leaf, indexData);
+		
+		// ao adicionar na folha pode ser que um split aconteca, nesse caso
+		// adiciona o novo branchNode no branch.
+		if (node != null)
+			this.addNodeToBranch(branch, node);
+	}
+	
+	private IndexBranchDatablock addNodeToBranch(	IndexBranchDatablock branch,
+													BranchDataBlockNode node) {
+		
+		branch.addNode(node);
+		
+		return null;
 	}
 	
 	private TableDataBlock getAvailableTableDataBlock() {
