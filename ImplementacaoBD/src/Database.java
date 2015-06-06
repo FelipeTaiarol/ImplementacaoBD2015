@@ -64,6 +64,28 @@ public class Database {
 		// split de branch, sendo que o branch esta dentro de outro branch.
 		db.insertCustomer(10, "p10");
 		
+		// enchendo a tree.
+		db.insertCustomer(66, "p66");
+		db.insertCustomer(67, "p67");
+		db.insertCustomer(69, "p68");
+		db.insertCustomer(70, "p68");
+		db.insertCustomer(71, "p68");
+		db.insertCustomer(72, "p68");
+		db.insertCustomer(73, "p68");
+		db.insertCustomer(74, "p68");
+		db.insertCustomer(75, "p68");
+		db.insertCustomer(76, "p68");
+		db.insertCustomer(77, "p68");
+		db.insertCustomer(78, "p68");
+		db.insertCustomer(79, "p68");
+		db.insertCustomer(80, "p68");
+		db.insertCustomer(81, "p68");
+		db.insertCustomer(82, "p68");
+		db.insertCustomer(83, "p68");
+		db.insertCustomer(84, "p68");
+		
+		// db.printBTree();
+		
 		db.printDataFile();
 	}
 	
@@ -213,8 +235,7 @@ public class Database {
 																	indexData);
 			
 			// ao adicionar na folha pode ser que um split de folha aconteca,
-			// nesse caso
-			// adiciona o novo branchNode no branch.
+			// nesse caso adiciona o novo branchNode no branch.
 			if (newNode != null) {
 				newNode = this.addNodeToBranch(branch, newNode);
 				
@@ -231,9 +252,22 @@ public class Database {
 						getLastDataBlock().setNext(newBranch);
 						newBranch.addNode(newNode);
 						this.bTreeRoot = newBranch;
+						
 					} else {
+						// caso contrario adiciona o node na root.
 						IndexBranchDatablock rootBranch = (IndexBranchDatablock) bTreeRoot;
-						rootBranch.addNode(newNode);
+						
+						newNode = this.addNodeToBranch(rootBranch, newNode);
+						
+						// se ao adicionar a root estiver cheia é preciso fazer
+						// um split.
+						if (newNode != null) {
+							IndexBranchDatablock newBranch = new IndexBranchDatablock(
+																						getNextDataBlockId());
+							getLastDataBlock().setNext(newBranch);
+							newBranch.addNode(newNode);
+							this.bTreeRoot = newBranch;
+						}
 					}
 				}
 			}
@@ -358,9 +392,8 @@ public class Database {
 		System.out.println(" -- Data File -- ");
 		
 		DataBlock dataBlock = firstDatablock;
-		
 		do {
-			if (dataBlock instanceof TableDataBlock)
+			if (!(dataBlock instanceof IndexBranchDatablock))
 				continue;
 			if (this.bTreeRoot == dataBlock)
 				System.out.print("ROOT ");
@@ -368,7 +401,15 @@ public class Database {
 		} while ((dataBlock = dataBlock.getNext()) != null);
 		
 		dataBlock = firstDatablock;
+		do {
+			if (!(dataBlock instanceof IndexLeafDataBlock))
+				continue;
+			if (this.bTreeRoot == dataBlock)
+				System.out.print("ROOT ");
+			System.out.println(dataBlock);
+		} while ((dataBlock = dataBlock.getNext()) != null);
 		
+		dataBlock = firstDatablock;
 		do {
 			if (!(dataBlock instanceof TableDataBlock))
 				continue;
@@ -380,4 +421,5 @@ public class Database {
 		System.out.println("-- End --");
 		
 	}
+	
 }

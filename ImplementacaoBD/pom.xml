@@ -3,6 +3,16 @@
   <groupId>ImplementacaoBD</groupId>
   <artifactId>ImplementacaoBD</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <dependencies>
+   <!-- Google Gson -->      
+	    <dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+  </dependencies>
+  
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
