@@ -11,22 +11,58 @@ public class Database {
 	
 	public static void main(String[] args) {
 		Database db = new Database();
+		
+		// adicionando primeiros clientes
 		db.insertCustomer(37, "Joao");
 		db.insertCustomer(50, "p8");
 		db.insertCustomer(13, "Jorge");
 		db.insertCustomer(61, "p6");
+		
+		// split de folha
 		db.insertCustomer(23, "p7");
+		
+		// mais alguns clientes
 		db.insertCustomer(17, "Ana");
 		db.insertCustomer(32, "Maria");
 		db.insertCustomer(62, "Felipe");
+		
+		// split de folha dentro de um branch.
 		db.insertCustomer(63, "p9");
+		
+		// mais alguns clientes
 		db.insertCustomer(51, "p51");
 		db.insertCustomer(52, "p52");
+		
+		// split de folha do node do meio de um branch.
 		db.insertCustomer(53, "p53");
 		db.insertCustomer(64, "p64");
+		
+		// splir de folha de um node do lado direito.
 		db.insertCustomer(65, "p65");
+		
+		// mais alguns cleintes
 		db.insertCustomer(54, "p54");
+		
+		// split de branch
 		db.insertCustomer(55, "p55");
+		
+		// mais alguns clientes, agora tendo que andar nos branchs
+		// para encontrar a leaf.
+		db.insertCustomer(38, "p38");
+		db.insertCustomer(39, "p39");
+		
+		// split de folha de de novo.
+		db.insertCustomer(40, "p40");
+		
+		// mais um split de folha
+		db.insertCustomer(14, "p14");
+		
+		// mais alguns clientes.
+		db.insertCustomer(12, "p12");
+		db.insertCustomer(11, "p11");
+		
+		// split de branch, sendo que o branch esta dentro de outro branch.
+		db.insertCustomer(10, "p10");
 		
 		db.printDataFile();
 	}
@@ -149,19 +185,14 @@ public class Database {
 		if (bTreeRoot instanceof IndexBranchDatablock) {
 			IndexBranchDatablock branch = (IndexBranchDatablock) bTreeRoot;
 			
-			IndexBranchDatablock newBranch = this.addToBranchDataBlock(	branch,
-																		indexData);
-			// se new branch nao for null significa que um split de branch
-			// aconteceu e por isso a referencia no root precisa ser atualizada.
-			if (newBranch != null) {
-				this.bTreeRoot = newBranch;
-			}
+			this.addToBranchDataBlock(branch, indexData);
+			
 		}
 		
 	}
 	
-	private IndexBranchDatablock addToBranchDataBlock(	IndexBranchDatablock branch,
-														IndexData indexData) {
+	private void addToBranchDataBlock(	IndexBranchDatablock branch,
+										IndexData indexData) {
 		
 		BranchDataBlockNode branchNode = branch.getNodeForKey(indexData.getIndexKey());
 		
@@ -178,40 +209,54 @@ public class Database {
 		if (dataBlock instanceof IndexLeafDataBlock) {
 			IndexLeafDataBlock leaf = (IndexLeafDataBlock) dataBlock;
 			
-			return this.addToBranchLeaf(branch, leaf, indexData);
+			BranchDataBlockNode newNode = this.addToLeafDataBlock(	leaf,
+																	indexData);
+			
+			// ao adicionar na folha pode ser que um split de folha aconteca,
+			// nesse caso
+			// adiciona o novo branchNode no branch.
+			if (newNode != null) {
+				newNode = this.addNodeToBranch(branch, newNode);
+				
+				// ao adicionar o novo node na branch pode ser que um split de
+				// branch aconteca. nesse caso o node do meio que possui
+				// referencias para os dois branchs que foram separados é
+				// retornado.
+				if (newNode != null) {
+					// se a branch que foi separda era o root agora a nova
+					// branch vai passar a ser o root
+					if (branch == bTreeRoot) {
+						IndexBranchDatablock newBranch = new IndexBranchDatablock(
+																					getNextDataBlockId());
+						getLastDataBlock().setNext(newBranch);
+						newBranch.addNode(newNode);
+						this.bTreeRoot = newBranch;
+					} else {
+						IndexBranchDatablock rootBranch = (IndexBranchDatablock) bTreeRoot;
+						rootBranch.addNode(newNode);
+					}
+				}
+			}
+			
 		} else {
-			// TODO e se for um branch ?
-			return null;
+			// se o datablock nao for um Leaf navegar na tree até econtrar um.
+			IndexBranchDatablock otherBranch = (IndexBranchDatablock) dataBlock;
+			
+			this.addToBranchDataBlock(otherBranch, indexData);
 		}
-		
-	}
-	
-	private IndexBranchDatablock addToBranchLeaf(	IndexBranchDatablock branch,
-													IndexLeafDataBlock leaf,
-													IndexData indexData) {
-		BranchDataBlockNode node = addToLeafDataBlock(leaf, indexData);
-		
-		// ao adicionar na folha pode ser que um split aconteca, nesse caso
-		// adiciona o novo branchNode no branch.
-		if (node != null) {
-			IndexBranchDatablock newBranch = this.addNodeToBranch(branch, node);
-			return newBranch;
-		}
-		
-		return null;
 		
 	}
 	
 	/**
 	 * adiciona node no branch. se um split de branch for necessario faz o split
-	 * e retorna um novo branch
+	 * e retorna um novo branch node
 	 * 
 	 * @param branch
 	 * @param node
 	 * @return
 	 */
-	private IndexBranchDatablock addNodeToBranch(	IndexBranchDatablock branch,
-													BranchDataBlockNode node) {
+	private BranchDataBlockNode addNodeToBranch(IndexBranchDatablock branch,
+												BranchDataBlockNode node) {
 		
 		if (branch.getNumberOfNodes() < this.maxIndexPerIndexDataBlock) {
 			branch.addNode(node);
@@ -222,8 +267,8 @@ public class Database {
 		return null;
 	}
 	
-	private IndexBranchDatablock splitBranch(	IndexBranchDatablock leftBranch,
-												BranchDataBlockNode overflowNode) {
+	private BranchDataBlockNode splitBranch(IndexBranchDatablock leftBranch,
+											BranchDataBlockNode overflowNode) {
 		int middle = maxIndexPerIndexDataBlock / 2;
 		
 		// adiciona o overflow
@@ -255,14 +300,7 @@ public class Database {
 		middleNode.setLeftDataBlock(leftBranch);
 		middleNode.setRightDataBlock(rightBranch);
 		
-		IndexBranchDatablock newBranch = new IndexBranchDatablock(
-																	getNextDataBlockId());
-		
-		rightBranch.setNext(newBranch);
-		
-		newBranch.addNode(middleNode);
-		
-		return newBranch;
+		return middleNode;
 	}
 	
 	private TableDataBlock getAvailableTableDataBlock() {
