@@ -11,9 +11,18 @@ public class IndexBranchDatablock extends IndexDataBlock {
 	
 	private List<BranchDataBlockNode> nodes = new LinkedList<BranchDataBlockNode>();
 	
+	public List<BranchDataBlockNode> getNodes() {
+		return nodes;
+	}
+	
+	public void setNodes(	List<BranchDataBlockNode> nodes) {
+		this.nodes = nodes;
+	}
+	
 	public void addNode(BranchDataBlockNode node) {
 		nodes.add(node);
 		
+		// ordena os nodes
 		Collections.sort(this.nodes, new Comparator<BranchDataBlockNode>() {
 			
 			@Override
@@ -22,6 +31,7 @@ public class IndexBranchDatablock extends IndexDataBlock {
 			}
 		});
 		
+		// organiza as referencias
 		for (int i = 0; i < nodes.size() - 1; i++) {
 			BranchDataBlockNode firstNode = nodes.get(i);
 			BranchDataBlockNode secondNode = nodes.get(i + 1);
@@ -36,14 +46,10 @@ public class IndexBranchDatablock extends IndexDataBlock {
 		BranchDataBlockNode node = null;
 		for (BranchDataBlockNode branchDataBlockNode : nodes) {
 			if (key < branchDataBlockNode.getKey())
-				node = branchDataBlockNode;
+				return branchDataBlockNode;
 		}
 		
-		if (node == null) {
-			return nodes.get(nodes.size() - 1);
-		} else {
-			return node;
-		}
+		return nodes.get(nodes.size() - 1);
 	}
 	
 	@Override
@@ -51,9 +57,13 @@ public class IndexBranchDatablock extends IndexDataBlock {
 		
 		String str = "Branch  " + this.getId() + "\n";
 		for (BranchDataBlockNode branchDataBlockNode : nodes) {
-			str += " -- " + branchDataBlockNode.toString();
+			str += " -- " + branchDataBlockNode.toString() + "\n";
 		}
 		return str + "\n";
+	}
+	
+	public int getNumberOfNodes() {
+		return this.nodes.size();
 	}
 	
 }

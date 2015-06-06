@@ -18,9 +18,16 @@ public class Database {
 		db.insertCustomer(23, "p7");
 		db.insertCustomer(17, "Ana");
 		db.insertCustomer(32, "Maria");
-		db.insertCustomer(8, "Felipe");
-		// db.insertCustomer(9, "p9");
-		//
+		db.insertCustomer(62, "Felipe");
+		db.insertCustomer(63, "p9");
+		db.insertCustomer(51, "p51");
+		db.insertCustomer(52, "p52");
+		db.insertCustomer(53, "p53");
+		db.insertCustomer(64, "p64");
+		db.insertCustomer(65, "p65");
+		db.insertCustomer(54, "p54");
+		db.insertCustomer(55, "p55");
+		
 		db.printDataFile();
 	}
 	
@@ -142,13 +149,19 @@ public class Database {
 		if (bTreeRoot instanceof IndexBranchDatablock) {
 			IndexBranchDatablock branch = (IndexBranchDatablock) bTreeRoot;
 			
-			this.addToBranchDataBlock(branch, indexData);
+			IndexBranchDatablock newBranch = this.addToBranchDataBlock(	branch,
+																		indexData);
+			// se new branch nao for null significa que um split de branch
+			// aconteceu e por isso a referencia no root precisa ser atualizada.
+			if (newBranch != null) {
+				this.bTreeRoot = newBranch;
+			}
 		}
 		
 	}
 	
-	private void addToBranchDataBlock(	IndexBranchDatablock branch,
-										IndexData indexData) {
+	private IndexBranchDatablock addToBranchDataBlock(	IndexBranchDatablock branch,
+														IndexData indexData) {
 		
 		BranchDataBlockNode branchNode = branch.getNodeForKey(indexData.getIndexKey());
 		
@@ -165,27 +178,91 @@ public class Database {
 		if (dataBlock instanceof IndexLeafDataBlock) {
 			IndexLeafDataBlock leaf = (IndexLeafDataBlock) dataBlock;
 			
-			this.addToBranchLeaf(branch, leaf, indexData);
+			return this.addToBranchLeaf(branch, leaf, indexData);
+		} else {
+			// TODO e se for um branch ?
+			return null;
 		}
 		
 	}
 	
-	private void addToBranchLeaf(	IndexBranchDatablock branch,
-									IndexLeafDataBlock leaf, IndexData indexData) {
+	private IndexBranchDatablock addToBranchLeaf(	IndexBranchDatablock branch,
+													IndexLeafDataBlock leaf,
+													IndexData indexData) {
 		BranchDataBlockNode node = addToLeafDataBlock(leaf, indexData);
 		
 		// ao adicionar na folha pode ser que um split aconteca, nesse caso
 		// adiciona o novo branchNode no branch.
-		if (node != null)
-			this.addNodeToBranch(branch, node);
+		if (node != null) {
+			IndexBranchDatablock newBranch = this.addNodeToBranch(branch, node);
+			return newBranch;
+		}
+		
+		return null;
+		
 	}
 	
+	/**
+	 * adiciona node no branch. se um split de branch for necessario faz o split
+	 * e retorna um novo branch
+	 * 
+	 * @param branch
+	 * @param node
+	 * @return
+	 */
 	private IndexBranchDatablock addNodeToBranch(	IndexBranchDatablock branch,
 													BranchDataBlockNode node) {
 		
-		branch.addNode(node);
+		if (branch.getNumberOfNodes() < this.maxIndexPerIndexDataBlock) {
+			branch.addNode(node);
+		} else {
+			return splitBranch(branch, node);
+		}
 		
 		return null;
+	}
+	
+	private IndexBranchDatablock splitBranch(	IndexBranchDatablock leftBranch,
+												BranchDataBlockNode overflowNode) {
+		int middle = maxIndexPerIndexDataBlock / 2;
+		
+		// adiciona o overflow
+		leftBranch.addNode(overflowNode);
+		
+		BranchDataBlockNode middleNode = leftBranch.getNodes().get(middle);
+		
+		// separa em duas listas. nenhuma delas possui o node do meio.
+		List<BranchDataBlockNode> leftNodes = leftBranch.getNodes()
+														.subList(0, middle);
+		
+		leftNodes = new LinkedList<BranchDataBlockNode>(leftNodes);
+		
+		List<BranchDataBlockNode> rightNodes = leftBranch.getNodes()
+															.subList(	middle + 1,
+																		this.maxIndexPerIndexDataBlock + 1);
+		
+		rightNodes = new LinkedList<BranchDataBlockNode>(rightNodes);
+		
+		leftBranch.setNodes(leftNodes);
+		
+		IndexBranchDatablock rightBranch = new IndexBranchDatablock(
+																	getNextDataBlockId());
+		rightBranch.setNodes(rightNodes);
+		
+		getLastDataBlock().setNext(rightBranch);
+		
+		// o branch node do meio aponta para os branch data blocks
+		middleNode.setLeftDataBlock(leftBranch);
+		middleNode.setRightDataBlock(rightBranch);
+		
+		IndexBranchDatablock newBranch = new IndexBranchDatablock(
+																	getNextDataBlockId());
+		
+		rightBranch.setNext(newBranch);
+		
+		newBranch.addNode(middleNode);
+		
+		return newBranch;
 	}
 	
 	private TableDataBlock getAvailableTableDataBlock() {
@@ -245,6 +322,18 @@ public class Database {
 		DataBlock dataBlock = firstDatablock;
 		
 		do {
+			if (dataBlock instanceof TableDataBlock)
+				continue;
+			if (this.bTreeRoot == dataBlock)
+				System.out.print("ROOT ");
+			System.out.println(dataBlock);
+		} while ((dataBlock = dataBlock.getNext()) != null);
+		
+		dataBlock = firstDatablock;
+		
+		do {
+			if (!(dataBlock instanceof TableDataBlock))
+				continue;
 			if (this.bTreeRoot == dataBlock)
 				System.out.print("ROOT ");
 			System.out.println(dataBlock);
