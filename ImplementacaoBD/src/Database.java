@@ -83,13 +83,14 @@ public class Database {
 		db.insertCustomer(82, "p68");
 		db.insertCustomer(83, "p68");
 		db.insertCustomer(84, "p68");
-		
 		db.insertCustomer(85, "p68");
 		db.insertCustomer(86, "p68");
 		db.insertCustomer(87, "p68");
 		db.insertCustomer(88, "p68");
 		db.insertCustomer(89, "p68");
-		// db.insertCustomer(90, "p68");
+		
+		// split de branch de uma branch intermediaria.
+		db.insertCustomer(90, "p68");
 		
 		db.printDataFile();
 	}
@@ -305,7 +306,24 @@ public class Database {
 		if (branch.getNumberOfNodes() < this.maxIndexPerIndexDataBlock) {
 			branch.addNode(node);
 		} else {
-			return splitBranch(branch, node);
+			BranchDataBlockNode newNode = splitBranch(branch, node);
+			
+			// se a branch que foi separda era o root agora a nova
+			// branch vai passar a ser o root
+			if (branch == bTreeRoot) {
+				// um novo branch data block é criado para guardar o
+				// node.
+				IndexBranchDatablock newBranch = new IndexBranchDatablock(
+																			getNextDataBlockId());
+				getLastDataBlock().setNext(newBranch);
+				newBranch.addNode(newNode);
+				this.bTreeRoot = newBranch;
+			} else {
+				// caso contrario tenta adicionar na parent
+				IndexBranchDatablock parentBranch = branch.getParent();
+				this.addNodeToBranch(parentBranch, newNode);
+			}
+			
 		}
 		
 		return null;
@@ -332,11 +350,19 @@ public class Database {
 		
 		rightNodes = new LinkedList<BranchDataBlockNode>(rightNodes);
 		
-		leftBranch.setNodes(leftNodes);
+		// tem que usar addNode
+		leftBranch.setNodes(new LinkedList<BranchDataBlockNode>());
+		for (BranchDataBlockNode branchDataBlockNode : leftNodes) {
+			leftBranch.addNode(branchDataBlockNode);
+		}
 		
 		IndexBranchDatablock rightBranch = new IndexBranchDatablock(
 																	getNextDataBlockId());
-		rightBranch.setNodes(rightNodes);
+		// tem que usar addNode
+		rightBranch.setNodes(new LinkedList<BranchDataBlockNode>());
+		for (BranchDataBlockNode branchDataBlockNode : rightNodes) {
+			rightBranch.addNode(branchDataBlockNode);
+		}
 		
 		getLastDataBlock().setNext(rightBranch);
 		
