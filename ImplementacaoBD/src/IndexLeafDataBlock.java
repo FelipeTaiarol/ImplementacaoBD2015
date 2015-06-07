@@ -10,6 +10,14 @@ public class IndexLeafDataBlock extends IndexDataBlock {
 		super(id);
 	}
 	
+	public TableDataBlock getByKey(	int key) {
+		for (IndexData indexData : indexRecords) {
+			if (key == indexData.getIndexKey())
+				return indexData.getTableDataBlock();
+		}
+		return null;
+	}
+	
 	public void addIndexRecord(	IndexData indexData) {
 		indexRecords.add(indexData);
 		Collections.sort(indexRecords, new Comparator<IndexData>() {

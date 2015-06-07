@@ -16,6 +16,15 @@ public class TableDataBlock extends DataBlock {
 		this.records = records;
 	}
 	
+	public CustomerData getCustomerByCode(	int code) {
+		for (CustomerData customerData : records) {
+			if (customerData.getCode() == code)
+				return customerData;
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		
@@ -25,5 +34,13 @@ public class TableDataBlock extends DataBlock {
 		}
 		
 		return "TableDataBlock " + this.getId() + " \n" + recordsString;
+	}
+	
+	public CustomerData getCustomerByName(	String name) {
+		for (CustomerData customerData : records) {
+			if (customerData.getName().equals(name))
+				return customerData;
+		}
+		return null;
 	}
 }

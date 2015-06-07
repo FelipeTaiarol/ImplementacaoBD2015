@@ -1,5 +1,6 @@
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class Database {
 	
@@ -12,87 +13,177 @@ public class Database {
 	public static void main(String[] args) {
 		Database db = new Database();
 		
-		// adicionando primeiros clientes
-		db.insertCustomer(37, "Joao");
-		db.insertCustomer(50, "p8");
-		db.insertCustomer(13, "Jorge");
-		db.insertCustomer(61, "p6");
+		// // adicionando primeiros clientes
+		// db.insertCustomer(37, "Joao");
+		// db.insertCustomer(50, "p8");
+		// db.insertCustomer(13, "Jorge");
+		// db.insertCustomer(61, "p6");
+		//
+		// // split de folha
+		// db.insertCustomer(23, "p7");
+		//
+		// // mais alguns clientes
+		// db.insertCustomer(17, "Ana");
+		// db.insertCustomer(32, "Maria");
+		// db.insertCustomer(62, "Felipe");
+		//
+		// // split de folha dentro de um branch.
+		// db.insertCustomer(63, "p9");
+		//
+		// // mais alguns clientes
+		// db.insertCustomer(51, "p51");
+		// db.insertCustomer(52, "p52");
+		//
+		// // split de folha do node do meio de um branch.
+		// db.insertCustomer(53, "p53");
+		// db.insertCustomer(64, "p64");
+		//
+		// // splir de folha de um node do lado direito.
+		// db.insertCustomer(65, "p65");
+		//
+		// // mais alguns cleintes
+		// db.insertCustomer(54, "p54");
+		//
+		// // split de branch
+		// db.insertCustomer(55, "p55");
+		//
+		// // mais alguns clientes, agora tendo que andar nos branchs
+		// // para encontrar a leaf.
+		// db.insertCustomer(38, "p38");
+		// db.insertCustomer(39, "p39");
+		//
+		// // split de folha de de novo.
+		// db.insertCustomer(40, "p40");
+		//
+		// // mais um split de folha
+		// db.insertCustomer(14, "p14");
+		//
+		// // mais alguns clientes.
+		// db.insertCustomer(12, "p12");
+		// db.insertCustomer(11, "p11");
+		//
+		// // split de branch, sendo que o branch esta dentro de outro branch.
+		// db.insertCustomer(10, "p10");
+		//
+		// // enchendo a tree.
+		// db.insertCustomer(66, "p66");
+		// db.insertCustomer(67, "p67");
+		// db.insertCustomer(69, "p68");
+		// db.insertCustomer(70, "p68");
+		// db.insertCustomer(71, "p68");
+		// db.insertCustomer(72, "p68");
+		// db.insertCustomer(73, "p68");
+		// db.insertCustomer(74, "p68");
+		// db.insertCustomer(75, "p68");
+		// db.insertCustomer(76, "p68");
+		// db.insertCustomer(77, "p68");
+		// db.insertCustomer(78, "p68");
+		// db.insertCustomer(79, "p68");
+		// db.insertCustomer(80, "p68");
+		// db.insertCustomer(81, "p68");
+		// db.insertCustomer(82, "p68");
+		// db.insertCustomer(83, "p68");
+		// db.insertCustomer(84, "p68");
+		// db.insertCustomer(85, "p68");
+		// db.insertCustomer(86, "p68");
+		// db.insertCustomer(87, "p68");
+		// db.insertCustomer(88, "p68");
+		// db.insertCustomer(89, "p68");
+		//
+		// // split de branch de uma branch intermediaria.
+		// db.insertCustomer(90, "p68");
 		
-		// split de folha
-		db.insertCustomer(23, "p7");
-		
-		// mais alguns clientes
-		db.insertCustomer(17, "Ana");
-		db.insertCustomer(32, "Maria");
-		db.insertCustomer(62, "Felipe");
-		
-		// split de folha dentro de um branch.
-		db.insertCustomer(63, "p9");
-		
-		// mais alguns clientes
-		db.insertCustomer(51, "p51");
-		db.insertCustomer(52, "p52");
-		
-		// split de folha do node do meio de um branch.
-		db.insertCustomer(53, "p53");
-		db.insertCustomer(64, "p64");
-		
-		// splir de folha de um node do lado direito.
-		db.insertCustomer(65, "p65");
-		
-		// mais alguns cleintes
-		db.insertCustomer(54, "p54");
-		
-		// split de branch
-		db.insertCustomer(55, "p55");
-		
-		// mais alguns clientes, agora tendo que andar nos branchs
-		// para encontrar a leaf.
-		db.insertCustomer(38, "p38");
-		db.insertCustomer(39, "p39");
-		
-		// split de folha de de novo.
-		db.insertCustomer(40, "p40");
-		
-		// mais um split de folha
-		db.insertCustomer(14, "p14");
-		
-		// mais alguns clientes.
-		db.insertCustomer(12, "p12");
-		db.insertCustomer(11, "p11");
-		
-		// split de branch, sendo que o branch esta dentro de outro branch.
-		db.insertCustomer(10, "p10");
-		
-		// enchendo a tree.
-		db.insertCustomer(66, "p66");
-		db.insertCustomer(67, "p67");
-		db.insertCustomer(69, "p68");
-		db.insertCustomer(70, "p68");
-		db.insertCustomer(71, "p68");
-		db.insertCustomer(72, "p68");
-		db.insertCustomer(73, "p68");
-		db.insertCustomer(74, "p68");
-		db.insertCustomer(75, "p68");
-		db.insertCustomer(76, "p68");
-		db.insertCustomer(77, "p68");
-		db.insertCustomer(78, "p68");
-		db.insertCustomer(79, "p68");
-		db.insertCustomer(80, "p68");
-		db.insertCustomer(81, "p68");
-		db.insertCustomer(82, "p68");
-		db.insertCustomer(83, "p68");
-		db.insertCustomer(84, "p68");
-		db.insertCustomer(85, "p68");
-		db.insertCustomer(86, "p68");
-		db.insertCustomer(87, "p68");
-		db.insertCustomer(88, "p68");
-		db.insertCustomer(89, "p68");
-		
-		// split de branch de uma branch intermediaria.
-		db.insertCustomer(90, "p68");
+		db.insertCustomer(1, "Felipe");
+		db.insertRandom(50);
 		
 		db.printDataFile();
+		
+		CustomerData c1 = db.selectByCodCliente(1);
+		System.out.println(c1);
+		
+		c1 = db.selectByName("Felipe");
+		System.out.println(c1);
+		
+	}
+	
+	public void insertRandom(	int total) {
+		int max = 10000;
+		int min = 2;
+		
+		Random rand = new Random();
+		
+		int randomNum = rand.nextInt((max - min) + 1) + min;
+		
+		for (int i = 0; i < total; i++) {
+			int code = randomNum;
+			String name = "Customer_" + randomNum;
+			this.insertCustomer(code, name);
+		}
+	}
+	
+	public CustomerData selectByName(	String name) {
+		return fullScan(firstDatablock, name);
+	}
+	
+	public CustomerData fullScan(	DataBlock dataBlock, String name) {
+		
+		if (dataBlock == null)
+			return null;
+		
+		if (dataBlock instanceof TableDataBlock) {
+			TableDataBlock table = (TableDataBlock) dataBlock;
+			CustomerData customerdData = table.getCustomerByName(name);
+			if (customerdData != null) {
+				return customerdData;
+			} else {
+				return fullScan(dataBlock.getNext(), name);
+			}
+			
+		} else {
+			return fullScan(dataBlock.getNext(), name);
+		}
+	}
+	
+	public CustomerData selectByCodCliente(	int code) {
+		
+		TableDataBlock table = this.findTableDatablock(bTreeRoot, code);
+		
+		if (table == null)
+			return null;
+		else
+			return table.getCustomerByCode(code);
+	}
+	
+	private TableDataBlock findTableDatablock(	IndexDataBlock dataBlock,
+												int code) {
+		
+		if (dataBlock instanceof IndexLeafDataBlock) {
+			IndexLeafDataBlock leaf = (IndexLeafDataBlock) dataBlock;
+			
+			TableDataBlock tableDataBlock = leaf.getByKey(code);
+			
+			return tableDataBlock;
+		}
+		
+		if (dataBlock instanceof IndexBranchDatablock) {
+			IndexBranchDatablock branch = (IndexBranchDatablock) dataBlock;
+			
+			BranchDataBlockNode branchNode = branch.getNodeForKey(code);
+			
+			IndexDataBlock aux = null;
+			
+			// decide para qual lado da branch ir.
+			if (code < branchNode.getKey()) {
+				aux = (IndexDataBlock) branchNode.getLeftDataBlock();
+			} else {
+				aux = (IndexDataBlock) branchNode.getRightDataBlock();
+			}
+			
+			return this.findTableDatablock(aux, code);
+		}
+		
+		return null;
+		
 	}
 	
 	/**
