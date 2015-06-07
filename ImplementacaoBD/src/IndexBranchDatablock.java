@@ -80,10 +80,10 @@ public class IndexBranchDatablock extends IndexDataBlock {
 	@Override
 	public String toString() {
 		
-		String str = "Branch  "
-				+ this.getId()
-				+ (this.getParent() == null ? " NO_PARENT" : " PARENT: "
-						+ this.getParent().getId()) + "\n";
+		String str = "Branch  " + this.getId()
+		// + (this.getParent() == null ? " NO_PARENT" : " PARENT: "
+		// + this.getParent().getId())
+				+ "\n";
 		for (BranchDataBlockNode branchDataBlockNode : nodes) {
 			str += " -- " + branchDataBlockNode.toString() + "\n";
 		}
